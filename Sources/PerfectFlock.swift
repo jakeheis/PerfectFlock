@@ -1,16 +1,21 @@
 import Foundation
 import Flock
 
-extension Flock {
-    public static let Perfect: [Task] = [
+public extension Flock {
+    static let Perfect: [Task] = [
         StopTask(),
         StartTask(),
         ListTask()
     ]
 }
 
-extension Config {
-    static var port = 80
+public extension Config {
+    static var ssl: (sslCert: String, sslKey: String)? = nil
+    static var port: UInt16? = nil
+    static var address: String? = nil
+    static var root: String? = nil
+    static var serverName: String? = nil
+    static var runAs: String? = nil
 }
 
 let perfect = "perfect"
@@ -36,7 +41,28 @@ public class StartTask: Task {
     
     public func run(on server: Server) throws {
         print("Starting Perfect")
-        try server.execute("nohup \(Paths.executable) --port \(Config.port) > /dev/null 2>&1 &")
+        var execComponents = [Paths.executable]
+        if let ssl = Config.ssl {
+            execComponents += ["--sslcert \(ssl.sslCert)"]
+            execComponents += ["--sslkey \(ssl.sslKey)"]
+        }
+        if let port = Config.port {
+            execComponents += ["--port \(port)"]
+        }
+        if let address = Config.address {
+            execComponents += ["--address \(address)"]
+        }
+        if let root = Config.root {
+            execComponents += ["--root \(root)"]
+        }
+        if let serverName = Config.serverName {
+            execComponents += ["--name \(serverName)"]
+        }
+        if let runAs = Config.runAs {
+            execComponents += ["--runas \(runAs)"]
+        }
+        let execString = execComponents.joined(separator: " ")
+        try server.execute("nohup \(execString) > /dev/null 2>&1 &")
         try invoke("perfect:list")
     }
 }
