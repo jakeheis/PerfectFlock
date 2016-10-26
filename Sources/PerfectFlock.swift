@@ -3,6 +3,7 @@ import Flock
 
 public extension Flock {
     static let Perfect: [Task] = [
+        ToolsTask(),
         StopTask(),
         StartTask(),
         ListTask()
@@ -19,6 +20,17 @@ public extension Config {
 }
 
 let perfect = "perfect"
+
+public class ToolsTask: Task {
+    public let name = "tools"
+    public let namespace = perfect
+    public let hookTimes: [HookTime] = [.after("tools:dependencies")]
+    
+    public func run(on server: Server) throws {
+        print("Installing Perfect dependencies")
+        try server.execute("sudo apt-get install openssl libssl-dev uuid-dev")
+    }
+}
 
 public class StopTask: Task {
     public let name = "stop"
