@@ -28,7 +28,7 @@ public class ToolsTask: Task {
     
     public func run(on server: Server) throws {
         print("Installing Perfect dependencies")
-        try server.execute("sudo apt-get install openssl libssl-dev uuid-dev")
+        try server.execute("sudo apt-get -qq install openssl libssl-dev uuid-dev")
     }
 }
 
