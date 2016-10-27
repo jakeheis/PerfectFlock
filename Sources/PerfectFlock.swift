@@ -1,12 +1,12 @@
-import Foundation
 import Flock
+import Foundation
 
 public extension Flock {
     static let Perfect: [Task] = [
         ToolsTask(),
         StopTask(),
         StartTask(),
-        ListTask()
+        ProcessTask()
     ]
 }
 
@@ -79,13 +79,13 @@ public class StartTask: Task {
     }
 }
 
-public class ListTask: Task {
-    public let name = "list"
+public class ProcessTask: Task {
+    public let name = "process"
     public let namespace = perfect
     
     public func run(on server: Server) throws {
         if let pid = try findServerPid(on: server) {
-            print("Perfect running on \(pid)")
+            print("Perfect running as process \(pid)")
         } else {
             print("Perfect not running")
         }
