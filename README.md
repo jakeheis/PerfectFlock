@@ -13,17 +13,23 @@ Add these lines to `deploy/FlockDependencies.json`:
   }
 ]
 ```
+In your `Flockfile` add:
+```swift
+import Flock
+import PerfectFlock
 
+...
+
+Flock.use(Flock.Perfect)
+```
 ## Included tasks
 ```
-perfect:tools
-perfect:stop
-perfect:start
-perfect:list
+perfect:tools    # Hooks .after("tools:dependencies")
+perfect:stop     # Hooks .before("deploy:link")
+perfect:start    # Hooks .after("deploy:link")
+perfect:process
 ```
-
 ## Configuration
-
 ```
 public extension Config {
     static var ssl: (sslCert: String, sslKey: String)? = nil
