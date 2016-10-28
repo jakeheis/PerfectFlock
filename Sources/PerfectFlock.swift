@@ -6,7 +6,7 @@ public extension Flock {
         ToolsTask(),
         StopTask(),
         StartTask(),
-        ProcessTask()
+        PsTask()
     ]
 }
 
@@ -75,12 +75,12 @@ public class StartTask: Task {
         }
         let execString = execComponents.joined(separator: " ")
         try server.execute("nohup \(execString) > /dev/null 2>&1 &")
-        try invoke("perfect:list")
+        try invoke("perfect:ps")
     }
 }
 
-public class ProcessTask: Task {
-    public let name = "process"
+public class PsTask: Task {
+    public let name = "ps"
     public let namespace = perfect
     
     public func run(on server: Server) throws {
