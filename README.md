@@ -22,6 +22,7 @@ import PerfectFlock
 
 Flock.use(Flock.Perfect)
 ```
+Run `flock tools` again before deploying to install Perfect's tools on your server.
 ## Included tasks
 ```
 perfect:tools    # Hooks .after("tools:dependencies")
