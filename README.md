@@ -27,7 +27,7 @@ Flock.use(Flock.Perfect)
 perfect:tools    # Hooks .after("tools:dependencies")
 perfect:stop     # Hooks .before("deploy:link")
 perfect:start    # Hooks .after("deploy:link")
-perfect:process
+perfect:ps
 ```
 ## Configuration
 ```
