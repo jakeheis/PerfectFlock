@@ -17,6 +17,9 @@ public extension Config {
     static var root: String? = nil
     static var serverName: String? = nil
     static var runAs: String? = nil
+    
+    static var outputLog = "/dev/null"
+    static var errorLog = "/dev/null"
 }
 
 let perfect = "perfect"
@@ -74,7 +77,7 @@ public class StartTask: Task {
             execComponents += ["--runas \(runAs)"]
         }
         let execString = execComponents.joined(separator: " ")
-        try server.execute("nohup \(execString) > /dev/null 2>&1 &")
+        try server.execute("nohup \(execString) >> \(Config.outputLog) 2>> \(Config.errorLog) &")
         try invoke("perfect:ps")
     }
 }
