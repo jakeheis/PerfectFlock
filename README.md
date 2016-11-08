@@ -20,7 +20,9 @@ import PerfectFlock
 
 ...
 
+Flock.use(Flock.Deploy)
 Flock.use(Flock.Perfect)
+// Remove `Flock.use(Flock.Server)`
 ```
 # Config
 ```swift
@@ -31,32 +33,14 @@ public extension Config {
     static var root: String? = nil
     static var serverName: String? = nil
     static var runAs: String? = nil
-    
-    static var outputLog = "/dev/null"
-    static var errorLog = "/dev/null"
 }
-```
-If you set the log variables to anything other than `/dev/null`, you'll likely want to turn off stdout bufferring to ensure log files are properly written to:
-```swift
-// Sources/main.swift
-
-#if os(Linux)
-import Glibc
-#else
-import Darwin
-#endif
-import PerfectLib
-
-setbuf(stdout, nil)
-
-let server = HTTPServer()
-...
 ```
 # Tasks
 ```
-perfect:tools    # Hooks .after("tools:dependencies")
-perfect:stop     # Hooks .before("deploy:link")
-perfect:start    # Hooks .after("deploy:link")
-perfect:ps
+flock perfect:restart  # Hooks .after("deploy:link")
+flock perfect:stop
+flock perfect:start
+flock perfect:status
+flock perfect:tools    # Hooks .after("tools:dependencies")
 ```
 `PerfectFlock` hooks into the deploy process to automatically restart the server after the new release is built, and into the tools process to install `Perfect` tools, so you should never have to call these tasks directly.
