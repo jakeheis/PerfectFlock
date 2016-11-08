@@ -39,7 +39,7 @@ public class PerfectSystemdProvder: SystemdProvider {
 }
 
 public class EnvTask: Task {
-    public let name = "env"
+    public let name = "write-env"
     public let namespace = perfect
     public let hookTimes: [HookTime] = [.before("perfect:restart")]
     
@@ -74,7 +74,7 @@ public class EnvTask: Task {
         let config = lines.joined(separator: "\n")
         try server.execute("echo \"\(config)\" > \(confFilePath)")
         
-        PerfectSystemdProvder.argumentString = keys.map({ "$" + $0 }).joined(separator: " ")
+        PerfectSystemdProvder.argumentString = keys.map({ "\\$" + $0 }).joined(separator: " ")
         
         try invoke("perfect:write-service") // Always rewrite service to update ExecStart
     }
