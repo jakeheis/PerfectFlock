@@ -2,7 +2,7 @@ import Flock
 import Foundation
 
 public extension Flock {
-    static let Perfect: [Task] = SystemdTasks(provider: PerfectSystemdProvder()).createTasks() + [EnvTask(), ToolsTask()]
+    static let Perfect: [Task] = SupervisordTasks(provider: PerfectSupervisorProvder()).createTasks() + [ToolsTask()]
 }
 
 public extension Config {
@@ -15,68 +15,46 @@ public extension Config {
 }
 
 let perfect = "perfect"
-let confFilePath = "/etc/perfect.conf"
 
-public class PerfectSystemdProvder: SystemdProvider {
+class PerfectSupervisorProvder: SupervisordProvider {
     
     static var argumentString = ""
     
-    public let name = perfect
-    public let serviceName = perfect
+    let name = perfect
+    let programName = perfect
     
-    public var serviceFileContents: String {
-        return [
-            "[Unit]",
-            "Description=\"The \(name) server\"",
-            "",
-            "[Service]",
-            "EnvironmentFile=\(confFilePath)",
-            "ExecStart=\"\(Paths.executable)\" \(PerfectSystemdProvder.argumentString)",
-            "Restart=on-failure",
-            ""
-        ].joined(separator: "\n")
-    }
-}
-
-public class EnvTask: Task {
-    public let name = "write-env"
-    public let namespace = perfect
-    public let hookTimes: [HookTime] = [.before("perfect:restart")]
-    
-    public func run(on server: Server) throws {        
-        var lines: [String] = []
-        var keys: [String] = []
-        
-        func add(_ key: String, _ value: String) {
-            lines.append("\(key)=\(value)")
-            keys.append(key)
-        }
-        
+    func confFileContents(for server: Server) -> String {
+        var commandComponents = [Paths.executable]
         if let ssl = Config.ssl {
-            add("SSH", "--sslcert \(ssl.sslCert) --sslkey \(ssl.sslKey)")
+            commandComponents.append("--sslcert \(ssl.sslCert)")
+            commandComponents.append("--sslkey \(ssl.sslKey)")
         }
         if let port = Config.port {
-            add("PORT", "--port \(port)")
+            commandComponents.append("--port \(port)")
         }
         if let address = Config.address {
-            add("ADDRESS", "--address \(address)")
+            commandComponents.append("--address \(address)")
         }
         if let root = Config.root {
-            add("ROOT", "--root \(root)")
+            commandComponents.append("--root \(root)")
         }
         if let serverName = Config.serverName {
-            add("NAME", "--name \(serverName)")
+            commandComponents.append("--name \(serverName)")
         }
         if let runAs = Config.runAs {
-            add("RUNAS", "--runas \(runAs)")
+            commandComponents.append("--runas \(runAs)")
         }
-        
-        let config = lines.joined(separator: "\n")
-        try server.execute("echo \"\(config)\" > \(confFilePath)")
-        
-        PerfectSystemdProvder.argumentString = keys.map({ "\\$" + $0 }).joined(separator: " ")
-        
-        try invoke("perfect:write-service") // Always rewrite service to update ExecStart
+        let command = commandComponents.joined(separator: " ")
+        return [
+            "[program:\(programName)]",
+            "command=\(command)",
+            "process_name=%(process_num)s",
+            "autostart=false",
+            "autorestart=unexpected",
+            "stdout_logfile=\(Config.outputLog)",
+            "stderr_logfile=\(Config.errorLog)",
+            ""
+        ].joined(separator: "\n")
     }
     
 }
