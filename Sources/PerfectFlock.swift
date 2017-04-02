@@ -17,12 +17,12 @@ public extension Config {
 let perfect = "perfect"
 
 class PerfectSupervisorProvder: SupervisordProvider {
-    
+
     static var argumentString = ""
-    
+
     let name = perfect
     let programName = perfect
-    
+
     func confFileContents(for server: Server) -> String {
         var commandComponents = [Paths.executable]
         if let ssl = Config.ssl {
@@ -53,17 +53,18 @@ class PerfectSupervisorProvder: SupervisordProvider {
             "autorestart=unexpected",
             "stdout_logfile=\(Config.outputLog)",
             "stderr_logfile=\(Config.errorLog)",
+            "directory=\(Paths.currentDirectory)",
             ""
         ].joined(separator: "\n")
     }
-    
+
 }
 
 public class ToolsTask: Task {
     public let name = "tools"
     public let namespace = perfect
     public let hookTimes: [HookTime] = [.after("tools:dependencies")]
-    
+
     public func run(on server: Server) throws {
         print("Installing Perfect dependencies")
         try server.execute("sudo apt-get -qq install openssl libssl-dev uuid-dev")
